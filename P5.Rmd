@@ -1,0 +1,222 @@
+---
+title: "Práctica 5"
+author: "Álvaro Miranda García"
+date: "2023-03-14"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+__1) Aplica un contraste de hipótesis basado en la media a:__
+
+y1  
+
+y1 e y2 
+
+
+```{r}
+set.seed (1)
+
+z = rnorm (100)
+x = rpois (100,10.3)
+y = rbinom (100, 1, .25)
+
+y1 = 5*z+x*10+rnorm (100,2,1)
+y2 = 5*z+x*12+rnorm (100,2,1)
+
+hist (y1)
+hist (y2)
+
+t.test (y1)
+t.test (y2)
+
+
+shapiro.test(y1)
+
+shapiro.test(y2)
+
+```
+
+Aplicando o el test de Shapiro Wilk, y1 tiene un valor p mayor de 0,05 (0.05106), por lo que no podríamos descartar una distribución normal (H0). y2 tiene un valor p de 0.03696, menor de 0.05, por lo que con alguna probabilidad podriamos descartar una distribución normal, por tanto, sería H1. Con t.test () lo comprobamos.
+
+
+
+__2) ¿Por qué decimos que la correlación lineal es una prueba de correlación paramétrica? ¿En qué se diferencian las pruebas paramétricas de las no paramétricas? __
+
+Una correlación paramétrica se aplica para casos en donde la distribución de los datos sigue una curva Gausiana o normal. Las pruebas no paramétricas u ordinales se encargan de analizar datos que no tienen una distribución particular y se basa en una hipótesis, pero los datos no están organizados de forma normal.
+
+
+__3)  Calcula la correlación entre las variables almacenadas en la tabla ‘data’. ¿Qué variables se encuentran más asociadas?__
+
+
+```{r}
+library(readxl)
+datos <- read_excel("C:/P7/datos.xlsx")
+View(datos)
+
+data1 = as.data.frame(datos)
+
+View (data1)
+```
+
+```{r}
+
+cor (data1)
+```
+
+
+Longitud y ancho = 0.4020
+Longitud y grosor = 0.0046
+Longitud y peso = 0.9555
+
+Ancho y grosor = -0.0012
+Ancho y peso = 0.5083
+Peso y grosor = -0.0582
+
+Longitud y peso, al ser su coeficiente de correlación más cercano a 1, se encuentran más asociadas.
+
+
+
+__4)  Calcula los coeficientes de correlación de las variables junto con el nivel de significancia (p-value) en 1 solo gráfico. Interpreta los resultados.__ 
+
+```{r}
+
+
+library (correlation)
+resultados = correlation(data1)
+resultados
+
+
+```
+```{r}
+
+library (ggplot2)
+library (ggpubr)
+
+plot (resultados)
+```
+
+
+
+__5)   Emplea una función para obtener en una matriz de correlación lineal, IC 95% y pvalue de todas las variables en el data frame ‘data’. __
+
+```{r}
+
+cor.test(data1$longitud, data1$ancho)
+cor.test(data1$grosor, data1$peso) 
+
+
+```
+
+__6)  Visualiza gráficamente la correlación lineal existente entre las variables ‘longitud’ y ‘peso’.__
+```{r}
+
+plot(data1$longitud, data1$peso, pch = 19, col = "black")
+
+# Línea de regresión
+abline(lm(data1$peso ~ data1$longitud), col = "red", lwd = 3)
+
+# Correlación de Pearson
+text(paste("Correlación:", round(cor(data1$peso, data1$longitud), 2)), x = 25, y = 95)
+
+```
+
+
+
+
+__7)  Emplea la librería `corrplot()` para visualizar la correlación entre variables.__ 
+
+```{r}
+
+library(corrplot)
+corrplot(cor (data1), method = 'number')
+
+```
+
+
+
+
+__8)  A partir de la siguiente secuencia de valores numéricos:__
+• Distancia (km): 1.1,100.2,90.3,5.4,57.5,6.6,34.7,65.8,57.9,86.1 • Número de cuentas (valor absoluto): 110,2,6,98,40,94,31,5,8,10  
+a. Crea 2 vectores: 'distancia' y 'n_piezas' para almacenarlos en un data frame 
+b. Calcula el coeficiente de correlación 
+c. Calcula el nivel de significancia 
+d. Calcula el Intervalo de confianza al 95% en relación con el coeficiente de correlación 
+e. ¿Qué intensidad y dirección presentan ambas variables? 
+f. ¿Es significativa esta relación? 
+g. Resulta apropiado afirmar la correlación (o no) entre variables con un tamaño muestral tan reducido (n=10). 
+
+
+```{r}
+#a.
+distancia <- c(1.1,100.2,90.3,5.4,57.5,6.6,34.7,65.8,57.9,86.1)
+n_piezas <- c(110,2,6,98,40,94,31,5,8,10)
+
+df <- data.frame(distancia, n_piezas)
+
+
+#b.
+cor(df$distancia, df$n_piezas)
+
+#c.
+
+cor.test(df$distancia, df$n_piezas)
+
+#d.
+
+correlation::correlation(df)
+
+
+#Así es la representación gráfica:
+plot (df)
+
+```
+
+e.
+El coeficiente (-0.92) indica que se acerca a una relación lineal inversa, pues se acerca a -1.
+
+f.
+Sí, la relación es significativa, al ser el p-value < -0,05.
+
+g.
+No, es complicado afirmar una correlación entre variables con un tamaño muestral tan reducido.
+
+
+__9) Explícame con un ejemplo en R la diferencia entre una relación lineal y monótona entre 2 variables.__ 
+
+Una relación lineal entre dos variables significa que existe una relación entre las dos variables de tal forma que una sube o baja de manera proporcional a la otra. Estas se pueden representar en una gráfica como una línea recta. 
+
+Un ejemplo en R de esta relación lineal sería:
+
+```{r}
+# Generar datos
+x <- c(1,2,3,4,5,6,7,8,9,10)
+
+y <- c(2,4,6,8,10,12,14,16,18,20)
+
+# Representación gráfica
+plot(x, y, main="X vs Y",
+     xlab="X", ylab="Y")
+```
+
+__10)  ¿Qué tipo de prueba de correlación se aplica a las variables que experimentan una relación monótona? Expón un ejemplo en R.__
+
+La monotonía de una función indica que es fácil de adivinar.
+
+Una prueba de correlación adecuada para variables que experimentan una relación monótona es la correlación de Spearman. Esta prueba mide la fuerza y dirección de la asociación entre dos variables ordinales.
+
+Un ejemplo de la prueba de correlación de Spearman en R es:
+```{r}
+# Crear datos
+x <- c(1, 2, 4, 5, 7, 8)
+y <- c(2, 3, 5, 6, 8, 9)
+
+# Calcular la correlación de Spearman
+cor.test(x, y, method = "spearman")
+```
+
